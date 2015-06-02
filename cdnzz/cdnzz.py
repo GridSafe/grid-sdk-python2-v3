@@ -93,14 +93,8 @@ class CDNZZ(object):
         if name is not None:
             params["name"] = name
         result = self.post_request("FetchToken", **params)
-        token = result["token"]
-        try:
-            payload = jwt.decode(token, self.secretkey)
-        except jwt.DecodeError as e:
-            raise CDNZZException(e)
-
-        self.token = token
-        self.token_expires = payload["exp"]
+        self.token = result["token"]
+        self.token_expires = result["payload"]["exp"]
         return self.token
 
     def add_domain(self, domain):
