@@ -6,4 +6,4 @@
 * Copyright (C) 2015 GridSafe, Inc.
 """
 
-from .cdnzz import CDNZZ, CDNZZException, RequestFailed
+from .cdnzz import CDNZZ, CDNZZException, CDNZZRequestError

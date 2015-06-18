@@ -9,18 +9,14 @@
 import unittest
 import random
 import string
-import jwt
 from cdnzz import CDNZZ, CDNZZException, settings
 import time
 
 
 class TestSDK(unittest.TestCase):
-    """SDK单元测试
-    """
+    """SDK单元测试"""
     def setUp(self):
-        # 测试需要相应的账号信息，请根据您的账号信息设置下面的参数
-        # 分别为 用户email， 用户 secretkey
-        self.api = CDNZZ("apitest@cdnzz.com", "3388b365b1eab03dfd68c578c8fee5fb")
+        self.api = CDNZZ("apitest@cdnzz.com", "ae5f9bd020556e3cc0ae4fa24b404456")
 
     def tearDown(self):
         pass
@@ -29,8 +25,6 @@ class TestSDK(unittest.TestCase):
         old_auto_auth = self.api.auto_auth
         self.api.auto_auth = False
         token = self.api.fetch_token(-10, "apitest")    # token 立刻过期
-        payload = jwt.decode(token, self.api.secretkey)
-        self.assertEqual(payload["name"], "apitest")
 
         try:
             self.api.list_domain()  # 检查 token 过期
@@ -58,12 +52,8 @@ class TestSDK(unittest.TestCase):
         res = self.api.fetch_verify_info(domain)
         self.assertEqual(res["domain"], domain)
         self.assertIsInstance(res["dns_txt_record"], basestring)
-        self.assertIsInstance(res["html_file_name"], basestring)
-        self.assertIsInstance(res["html_file_content"], basestring)
 
-        res = self.api.verify_domain(domain, "dns")
-        self.assertEqual(res["domain"], domain)
-        res = self.api.verify_domain(domain, "file")
+        res = self.api.verify_domain(domain)
         self.assertEqual(res["domain"], domain)
 
     def test_sub_domain(self):
@@ -106,12 +96,22 @@ class TestSDK(unittest.TestCase):
         self.assertFalse(res["active"])
 
     def test_add_preload(self):
-        url = "http://api-test.com/logo.png"
+        try:
+            self.api.add_domain("api-test.com")
+            self.api.add_sub_domain("api-test.com", "preload", 'A', '66.66.66.66')
+        except:
+            pass
+        url = "http://preload.api-test.com/logo.png"
         res = self.api.add_preload(url)
         self.assertEqual(res["url"], url)
 
     def test_purge_cache(self):
-        url = "http://api-test.com/logo.png"
+        try:
+            self.api.add_domain("api-test.com")
+            self.api.add_sub_domain("api-test.com", "purge-cache", 'A', '66.66.66.66')
+        except:
+            pass
+        url = "http://purge-cache.api-test.com/logo.png"
         res = self.api.purge_cache(url)
         self.assertEqual(res["url"], url)
 

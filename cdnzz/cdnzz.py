@@ -10,7 +10,6 @@ import json
 import time
 import sys
 
-import jwt  # PyJWT
 import requests
 
 import settings
@@ -25,7 +24,8 @@ class CDNZZException(Exception):
         super(CDNZZException, self).__init__("%s(%d)" % (
             self.msg.encode(_SYS_ENCODE), self.error))
 
-class RequestFailed(CDNZZException):
+
+class CDNZZRequestError(CDNZZException):
     pass
 
 
@@ -62,13 +62,13 @@ class CDNZZ(object):
             raise CDNZZException(str(e))
 
         if d["error"] != 0:
-            raise RequestFailed(d["msg"], d["error"])
+            raise CDNZZRequestError(d["msg"], d["error"])
         return d["result"]
 
     def post_request(self, method, **params):
         try:
             rv = self.__do_post_request(method, **params)
-        except RequestFailed as e:
+        except CDNZZRequestError as e:
             # 如果开启了 auto_auth, 当出现 token 错误时尝试重新获取 token 后再次提交请求
             if self.auto_auth and e.error == settings.INVALID_TOKEN_ERROR:
                 self.fetch_token()
@@ -106,20 +106,13 @@ class CDNZZ(object):
     def fetch_verify_info(self, domain):
         return self.post_request("FetchVerifyInfo", domain=domain)
 
-    def list_domain(self):
-        return self.post_request("ListDomain")
-
-    def fetch_verify_info(self, domain):
-        return self.post_request("FetchVerifyInfo", domain=domain)
-
-    def verify_domain(self, domain, verify_type):
-        """
+    def verify_domain(self, domain):
+        """请求验证域名并返回域名验证信息
 
         :param domain:
-        :param verify_type: "dns" or "file"
         :return:
         """
-        return self.post_request("VerifyDomain", domain=domain, verify_type=verify_type)
+        return self.post_request("VerifyDomain", domain=domain)
 
     def add_sub_domain(self, domain, host, type_, value):
         """
