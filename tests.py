@@ -115,6 +115,28 @@ class TestSDK(unittest.TestCase):
         res = self.api.purge_cache(url)
         self.assertEqual(res["url"], url)
 
+    def test_fetch_bandwidth(self):
+        domain = "api-test.com"
+        try:
+            self.api.add_domain(domain)
+        except:
+            pass
+
+        res = self.api.fetch_bandwidth(domain, 'bandwidth')
+        res = self.api.fetch_bandwidth(domain, 'bandwidth', start_day='20150701', end_day='20150710')
+        self.assertTrue(len(res) >= 0)
+
+    def test_fetch_traffic(self):
+        domain = "api-test.com"
+        try:
+            self.api.add_domain(domain)
+        except:
+            pass
+
+        res = self.api.fetch_traffic(domain, 'traffic')
+        res = self.api.fetch_traffic(domain, 'traffic', start_day='20150701', end_day='20150710')
+        self.assertTrue(len(res) >= 0)
+
 
 if __name__ == "__main__":
     unittest.main()

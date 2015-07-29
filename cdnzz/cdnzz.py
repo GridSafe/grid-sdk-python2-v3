@@ -66,6 +66,9 @@ class CDNZZ(object):
         return d["result"]
 
     def post_request(self, method, **params):
+        for k in params.keys():
+            if params[k] is None:
+                params.pop(k)
         try:
             rv = self.__do_post_request(method, **params)
         except CDNZZRequestError as e:
@@ -148,3 +151,10 @@ class CDNZZ(object):
     def purge_cache(self, url):
         return self.post_request("PurgeCache", url=url)
 
+    def fetch_bandwidth(self, domain, sub_name, start_day=None, end_day=None):
+        return self.post_request("FetchBandwidth", domain=domain, sub_name=sub_name,
+                                 start_day=start_day, end_day=end_day)
+
+    def fetch_traffic(self, domain, sub_name, start_day=None, end_day=None):
+        return self.post_request("FetchTraffic", domain=domain, sub_name=sub_name,
+                                 start_day=start_day, end_day=end_day)
